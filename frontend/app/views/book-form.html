@@ -1,0 +1,156 @@
+<div class="form-card">
+  <div class="mb-3">
+    <a href="#!/books" class="text-decoration-none text-body-secondary small d-inline-flex align-items-center gap-1">
+      <i class="bi bi-arrow-left"></i>
+      <span>Back to Books</span>
+    </a>
+  </div>
+
+  <div class="surface-card p-4">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <span class="form-header-icon">
+        <i class="bi" ng-class="vm.isEdit ? 'bi-pencil-square' : 'bi-journal-plus'"></i>
+      </span>
+      <div>
+        <h1 class="h5 fw-semibold mb-0">
+          {{ vm.isEdit ? 'Edit Book' : 'Add New Book' }}
+        </h1>
+        <p class="text-body-secondary small mb-0">
+          {{ vm.isEdit ? 'Update the book details below.' : 'Fill in the details to add a book to the catalog.' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="alert alert-danger d-flex align-items-center gap-2" role="alert" ng-if="vm.error">
+      <i class="bi bi-exclamation-circle-fill"></i>
+      <span>{{ vm.error }}</span>
+    </div>
+
+    <div class="py-4 text-center" ng-if="vm.loading">
+      <div class="spinner-border text-primary mb-2" role="status"></div>
+      <div class="text-body-secondary small">Loading book details...</div>
+    </div>
+
+    <form name="bookForm" novalidate ng-submit="vm.save(bookForm)" ng-if="!vm.loading">
+      <div class="mb-3">
+        <label for="titleInput" class="form-label fw-medium">
+          Title <span class="text-danger">*</span>
+        </label>
+        <input
+          id="titleInput"
+          type="text"
+          name="title"
+          class="form-control"
+          placeholder="e.g. Clean Code"
+          ng-model="vm.formData.title"
+          ng-class="{ 'is-invalid': (bookForm.title.$touched || bookForm.$submitted) && (!vm.formData.title || !vm.formData.title.trim()) }"
+          required
+        />
+        <div
+          class="invalid-feedback"
+          ng-if="(bookForm.title.$touched || bookForm.$submitted) && (!vm.formData.title || !vm.formData.title.trim())"
+        >
+          Title is required.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="authorInput" class="form-label fw-medium">
+          Author <span class="text-danger">*</span>
+        </label>
+        <input
+          id="authorInput"
+          type="text"
+          name="author"
+          class="form-control"
+          placeholder="e.g. Robert C. Martin"
+          ng-model="vm.formData.author"
+          ng-class="{ 'is-invalid': (bookForm.author.$touched || bookForm.$submitted) && (!vm.formData.author || !vm.formData.author.trim()) }"
+          required
+        />
+        <div
+          class="invalid-feedback"
+          ng-if="(bookForm.author.$touched || bookForm.$submitted) && (!vm.formData.author || !vm.formData.author.trim())"
+        >
+          Author is required.
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6">
+          <label class="form-label fw-medium">
+            Category <span class="text-danger">*</span>
+          </label>
+          <div class="custom-dropdown">
+            <button
+              type="button"
+              class="dropdown-trigger"
+              aria-expanded="{{ vm.categoryOpen }}"
+              ng-click="vm.toggleCategoryMenu($event)"
+            >
+              <span class="d-inline-flex align-items-center gap-2">
+                <i class="bi bi-tag text-body-secondary"></i>
+                <span>{{ vm.formData.category }}</span>
+              </span>
+              <i class="bi bi-chevron-down dropdown-chevron"></i>
+            </button>
+
+            <div class="dropdown-menu-panel w-100" ng-if="vm.categoryOpen" ng-click="$event.stopPropagation()">
+              <button
+                type="button"
+                class="dropdown-option"
+                ng-repeat="cat in vm.categories track by cat"
+                ng-class="{ 'active': vm.formData.category === cat }"
+                ng-click="vm.selectCategory(cat)"
+              >
+                <span>{{ cat }}</span>
+                <i class="bi bi-check2" ng-if="vm.formData.category === cat"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-6">
+          <label for="yearInput" class="form-label fw-medium">
+            Published Year <span class="text-danger">*</span>
+          </label>
+          <input
+            id="yearInput"
+            type="number"
+            name="published_year"
+            class="form-control"
+            min="1900"
+            max="{{ vm.currentYear }}"
+            ng-model="vm.formData.published_year"
+            ng-class="{ 'is-invalid': (bookForm.published_year.$touched || bookForm.$submitted) && bookForm.published_year.$invalid }"
+            required
+          />
+          <div
+            class="invalid-feedback"
+            ng-if="(bookForm.published_year.$touched || bookForm.$submitted) && bookForm.published_year.$invalid"
+          >
+            Enter a year between 1900 and {{ vm.currentYear }}.
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          ng-disabled="vm.saving"
+          ng-click="vm.cancel()"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary px-4"
+          ng-disabled="vm.saving"
+        >
+          {{ vm.saving ? 'Saving...' : 'Save Book' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
