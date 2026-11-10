@@ -53,7 +53,7 @@
       <div class="d-flex align-items-center gap-2 flex-shrink-0">
         <button
           type="button"
-          class="btn theme-toggle-btn d-inline-flex align-items-center justify-content-center"
+          class="btn theme-toggle-btn d-inline-flex align-items-center justify-content-center flex-shrink-0"
           ng-click="themeVm.toggleTheme()"
           aria-label="Toggle color theme"
           title="{{ themeVm.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode' }}"
@@ -61,9 +61,13 @@
           <i class="bi" ng-class="themeVm.theme === 'dark' ? 'bi-sun-fill text-warning' : 'bi-moon-stars-fill'"></i>
         </button>
 
-        <a href="#!/books/new" class="btn btn-primary btn-sm px-2 px-sm-3 py-2 fw-medium d-inline-flex align-items-center gap-1 gap-sm-2">
+        <a
+          href="#!/books/new"
+          class="btn btn-primary btn-sm px-2 px-sm-3 py-2 fw-medium d-inline-flex align-items-center gap-1 gap-sm-2 flex-shrink-0"
+        >
           <i class="bi bi-plus-lg"></i>
-          <span>Add Book</span>
+          <span class="d-none d-sm-inline">Add Book</span>
+          <span class="d-sm-none">Add</span>
         </a>
       </div>
     </div>
