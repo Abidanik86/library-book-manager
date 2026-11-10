@@ -47,7 +47,8 @@ def _register_error_handlers(app: Flask) -> None:
         return jsonify({"error": "Internal server error"}), 500
 
 
+app = create_app()
+
 if __name__ == "__main__":
-    application = create_app()
-    application.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)
 

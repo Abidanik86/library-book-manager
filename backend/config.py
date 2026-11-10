@@ -1,6 +1,11 @@
 import os
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DEFAULT_SQLITE_PATH = (
+    "/tmp/library.db"
+    if os.environ.get("VERCEL")
+    else os.path.join(BASE_DIR, "library.db")
+)
 
 
 class Config:
@@ -8,7 +13,7 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL",
-        f"sqlite:///{os.path.join(BASE_DIR, 'library.db')}",
+        f"sqlite:///{DEFAULT_SQLITE_PATH}",
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
