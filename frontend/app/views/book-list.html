@@ -65,7 +65,7 @@
   <!-- Search, custom dropdowns, view switcher & quick category chips -->
   <div class="surface-card p-3 d-flex flex-column gap-3">
     <div class="row g-2 align-items-center">
-      <div class="col-12 col-md-5">
+      <div class="col-12 col-lg-5">
         <div class="input-group">
           <span class="input-group-text search-addon border-end-0">
             <i class="bi bi-search"></i>
@@ -73,7 +73,8 @@
           <input
             id="bookSearchInput"
             type="text"
-            class="form-control border-start-0 border-end-0 ps-0"
+            class="form-control border-start-0 border-end-0 ps-0 search-input-responsive"
+            ng-class="{ 'has-clear': vm.search }"
             placeholder="Search by title or author..."
             ng-model="vm.search"
             ng-model-options="{ debounce: 250 }"
@@ -83,7 +84,6 @@
           <span class="input-group-text search-kbd-hint border-start-0 d-none d-md-inline-flex" ng-if="!vm.search">
             <kbd>/</kbd>
           </span>
-          <span class="input-group-text search-addon border-start-0 d-md-none" ng-if="!vm.search"></span>
           <button
             type="button"
             class="btn search-clear-btn border-start-0"
@@ -97,7 +97,7 @@
       </div>
 
       <!-- Custom Category Dropdown -->
-      <div class="col-6 col-md-3">
+      <div class="col-12 col-sm-6 col-md-5 col-lg-3">
         <div class="custom-dropdown">
           <button
             type="button"
@@ -137,7 +137,7 @@
       </div>
 
       <!-- Custom Sort Dropdown -->
-      <div class="col-6 col-md-2">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-2">
         <div class="custom-dropdown">
           <button
             type="button"
@@ -170,17 +170,17 @@
         </div>
       </div>
 
-      <div class="col-12 col-md-2 d-flex align-items-center justify-content-between justify-content-md-end gap-2">
+      <div class="col-12 col-md-3 col-lg-2 d-flex align-items-center justify-content-end gap-2">
         <button
           type="button"
-          class="btn btn-outline-secondary btn-sm flex-grow-1 flex-md-grow-0"
+          class="btn btn-outline-secondary btn-sm btn-responsive"
           ng-if="vm.hasActiveFilters()"
           ng-click="vm.clearFilters()"
         >
           <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
         </button>
 
-        <div class="view-switcher d-none d-md-inline-flex" role="group" aria-label="Switch layout">
+        <div class="view-switcher d-none d-md-inline-flex flex-shrink-0" role="group" aria-label="Switch layout">
           <button
             type="button"
             class="view-switch-btn"
@@ -206,7 +206,7 @@
     </div>
 
     <!-- Quick category chips -->
-    <div class="d-flex flex-wrap align-items-center gap-2">
+    <div class="category-chips-bar">
       <button
         type="button"
         class="filter-chip"
@@ -377,19 +377,22 @@
                   class="btn btn-outline-secondary action-btn"
                   ng-disabled="vm.actionBookId === book.id"
                   ng-click="vm.editBook(book)"
+                  title="Edit book"
+                  aria-label="Edit book"
                 >
                   <i class="bi bi-pencil"></i>
-                  <span>Edit</span>
+                  <span class="d-none d-lg-inline">Edit</span>
                 </button>
                 <button
                   type="button"
                   class="btn btn-outline-danger action-btn"
                   ng-disabled="book.is_borrowed || vm.actionBookId === book.id"
                   title="{{ book.is_borrowed ? 'Return book before deleting' : 'Delete book' }}"
+                  aria-label="Delete book"
                   ng-click="vm.openDeleteModal(book)"
                 >
                   <i class="bi bi-trash3"></i>
-                  <span>Delete</span>
+                  <span class="d-none d-lg-inline">Delete</span>
                 </button>
               </div>
             </td>
@@ -583,7 +586,7 @@
 
 <!-- Borrow Modal -->
 <div class="modal-backdrop-custom" ng-if="vm.borrowModalBook" ng-click="vm.closeBorrowModal()">
-  <div class="modal-card-custom p-4" ng-click="$event.stopPropagation()">
+  <div class="modal-card-custom p-3 p-sm-4" ng-click="$event.stopPropagation()">
     <div class="d-flex justify-content-between align-items-start mb-3">
       <div>
         <h2 class="h5 fw-semibold mb-1">Borrow Book</h2>
@@ -623,10 +626,10 @@
         {{ vm.borrowError }}
       </div>
 
-      <div class="d-flex justify-content-end gap-2">
+      <div class="d-flex flex-column-reverse flex-sm-row justify-content-sm-end gap-2">
         <button
           type="button"
-          class="btn btn-outline-secondary"
+          class="btn btn-outline-secondary btn-responsive"
           ng-disabled="vm.borrowing"
           ng-click="vm.closeBorrowModal()"
         >
@@ -634,7 +637,7 @@
         </button>
         <button
           type="submit"
-          class="btn btn-primary"
+          class="btn btn-primary btn-responsive"
           ng-disabled="vm.borrowing"
         >
           {{ vm.borrowing ? 'Borrowing...' : 'Confirm Borrow' }}
@@ -646,7 +649,7 @@
 
 <!-- Delete Confirmation Modal -->
 <div class="modal-backdrop-custom" ng-if="vm.deleteModalBook" ng-click="vm.closeDeleteModal()">
-  <div class="modal-card-custom p-4" ng-click="$event.stopPropagation()">
+  <div class="modal-card-custom p-3 p-sm-4" ng-click="$event.stopPropagation()">
     <div class="d-flex align-items-start gap-3 mb-3">
       <span class="delete-modal-icon">
         <i class="bi bi-trash3"></i>
@@ -660,10 +663,10 @@
       </div>
     </div>
 
-    <div class="d-flex justify-content-end gap-2 pt-2">
+    <div class="d-flex flex-column-reverse flex-sm-row justify-content-sm-end gap-2 pt-2">
       <button
         type="button"
-        class="btn btn-outline-secondary"
+        class="btn btn-outline-secondary btn-responsive"
         ng-disabled="vm.deleting"
         ng-click="vm.closeDeleteModal()"
       >
@@ -671,7 +674,7 @@
       </button>
       <button
         type="button"
-        class="btn btn-danger"
+        class="btn btn-danger btn-responsive"
         ng-disabled="vm.deleting"
         ng-click="vm.confirmDelete()"
       >

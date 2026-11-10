@@ -6,7 +6,7 @@
     </a>
   </div>
 
-  <div class="surface-card p-4">
+  <div class="surface-card p-3 p-sm-4">
     <div class="d-flex align-items-center gap-3 mb-4">
       <span class="form-header-icon">
         <i class="bi" ng-class="vm.isEdit ? 'bi-pencil-square' : 'bi-journal-plus'"></i>
@@ -134,10 +134,10 @@
         </div>
       </div>
 
-      <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+      <div class="d-flex flex-column-reverse flex-sm-row justify-content-sm-end gap-2 pt-3 border-top">
         <button
           type="button"
-          class="btn btn-outline-secondary"
+          class="btn btn-outline-secondary btn-responsive"
           ng-disabled="vm.saving"
           ng-click="vm.cancel()"
         >
@@ -145,7 +145,7 @@
         </button>
         <button
           type="submit"
-          class="btn btn-primary px-4"
+          class="btn btn-primary px-4 btn-responsive"
           ng-disabled="vm.saving"
         >
           {{ vm.saving ? 'Saving...' : 'Save Book' }}
