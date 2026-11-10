@@ -1,7 +1,8 @@
 import argparse
 import sys
 
-from app import create_app
+from sqlalchemy import func, select
+
 from extensions import db
 from models import Book, Category
 
@@ -89,42 +90,55 @@ SAMPLE_BOOKS = [
 ]
 
 
-def seed_books(reset: bool = False) -> int:
-    """Seed 10 sample books. Returns the number of inserted books."""
-    app = create_app()
-    with app.app_context():
-        if reset:
-            db.session.query(Book).delete()
-            db.session.query(Category).delete()
-            db.session.commit()
+def seed_if_empty(reset: bool = False, quiet: bool = False) -> int:
+    """Seed 10 sample books inside an active Flask app context."""
+    if reset:
+        db.session.query(Book).delete()
+        db.session.query(Category).delete()
+        db.session.commit()
 
-        existing_count = db.session.query(Book).count()
-        if existing_count > 0:
+    existing_count = db.session.query(Book).count()
+    if existing_count > 0:
+        if not quiet:
             print(f"Database already contains {existing_count} book(s). Use --reset to re-seed.")
-            return 0
+        return 0
 
-        categories_by_name: dict[str, Category] = {}
-        for item in SAMPLE_BOOKS:
-            cat_name = item["category"]
-            if cat_name not in categories_by_name:
+    categories_by_name: dict[str, Category] = {}
+    for item in SAMPLE_BOOKS:
+        cat_name = item["category"]
+        if cat_name not in categories_by_name:
+            cat = db.session.execute(
+                select(Category).where(func.lower(Category.name) == cat_name.lower())
+            ).scalar_one_or_none()
+            if cat is None:
                 cat = Category(name=cat_name)
                 db.session.add(cat)
                 db.session.flush()
-                categories_by_name[cat_name] = cat
+            categories_by_name[cat_name] = cat
 
-            book = Book(
-                title=item["title"],
-                author=item["author"],
-                category_rel=categories_by_name[cat_name],
-                published_year=item["published_year"],
-                is_borrowed=item["is_borrowed"],
-                borrower_name=item["borrower_name"],
-            )
-            db.session.add(book)
+        book = Book(
+            title=item["title"],
+            author=item["author"],
+            category_rel=categories_by_name[cat_name],
+            published_year=item["published_year"],
+            is_borrowed=item["is_borrowed"],
+            borrower_name=item["borrower_name"],
+        )
+        db.session.add(book)
 
-        db.session.commit()
+    db.session.commit()
+    if not quiet:
         print(f"Seeded {len(SAMPLE_BOOKS)} sample books.")
-        return len(SAMPLE_BOOKS)
+    return len(SAMPLE_BOOKS)
+
+
+def seed_books(reset: bool = False) -> int:
+    """CLI helper to seed 10 sample books."""
+    from app import create_app
+
+    app = create_app()
+    with app.app_context():
+        return seed_if_empty(reset=reset)
 
 
 if __name__ == "__main__":

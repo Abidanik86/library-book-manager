@@ -7,7 +7,12 @@
 
   function BookService($http, $q, $window) {
     var host = $window.location.hostname || "127.0.0.1";
-    var API_BASE = "http://" + host + ":5000/api/books";
+    var port = $window.location.port;
+    var isLocalHost = host === "127.0.0.1" || host === "localhost";
+    var API_BASE =
+      isLocalHost && port && port !== "5000"
+        ? "http://" + host + ":5000/api/books"
+        : "/api/books";
     var pendingNotice = "";
 
     function extractError(err, fallbackMessage) {
