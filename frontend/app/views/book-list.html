@@ -3,25 +3,30 @@
   <div class="row g-3">
     <div class="col-12 col-sm-4">
       <div
-        class="stat-card stat-card-interactive d-flex align-items-center justify-content-between gap-2"
+        class="stat-card stat-card-interactive d-flex flex-column gap-2"
         ng-class="{ 'stat-card-active': vm.statusFilter === '' }"
         ng-click="vm.setStatusFilter('')"
         role="button"
         tabindex="0"
         title="Show all books"
       >
-        <div>
-          <div class="stat-label">Total Books</div>
-          <div class="stat-value">{{ vm.books.length }}</div>
+        <div class="d-flex align-items-center justify-content-between gap-2">
+          <div>
+            <div class="stat-label">Total Books</div>
+            <div class="stat-value">{{ vm.books.length }}</div>
+          </div>
+          <span class="stat-icon stat-icon-total">
+            <i class="bi bi-bookshelf"></i>
+          </span>
         </div>
-        <span class="stat-icon stat-icon-total">
-          <i class="bi bi-bookshelf"></i>
-        </span>
+        <div class="availability-bar-track" ng-if="vm.books.length > 0" title="{{ vm.getAvailabilityPercent() }}% available">
+          <div class="availability-bar-fill" ng-style="{ width: vm.getAvailabilityPercent() + '%' }"></div>
+        </div>
       </div>
     </div>
     <div class="col-6 col-sm-4">
       <div
-        class="stat-card stat-card-interactive d-flex align-items-center justify-content-between gap-2"
+        class="stat-card stat-card-interactive d-flex align-items-center justify-content-between gap-2 h-100"
         ng-class="{ 'stat-card-active': vm.statusFilter === 'available' }"
         ng-click="vm.setStatusFilter('available')"
         role="button"
@@ -39,7 +44,7 @@
     </div>
     <div class="col-6 col-sm-4">
       <div
-        class="stat-card stat-card-interactive d-flex align-items-center justify-content-between gap-2"
+        class="stat-card stat-card-interactive d-flex align-items-center justify-content-between gap-2 h-100"
         ng-class="{ 'stat-card-active': vm.statusFilter === 'borrowed' }"
         ng-click="vm.setStatusFilter('borrowed')"
         role="button"
@@ -57,7 +62,7 @@
     </div>
   </div>
 
-  <!-- Search, custom dropdowns, & category quick-filter chips -->
+  <!-- Search, custom dropdowns, view switcher & quick category chips -->
   <div class="surface-card p-3 d-flex flex-column gap-3">
     <div class="row g-2 align-items-center">
       <div class="col-12 col-md-5">
@@ -66,15 +71,19 @@
             <i class="bi bi-search"></i>
           </span>
           <input
+            id="bookSearchInput"
             type="text"
-            class="form-control border-start-0 ps-0"
-            ng-class="{ 'border-end-0': vm.search }"
+            class="form-control border-start-0 border-end-0 ps-0"
             placeholder="Search by title or author..."
             ng-model="vm.search"
             ng-model-options="{ debounce: 250 }"
             ng-change="vm.loadBooks()"
             aria-label="Search books"
           />
+          <span class="input-group-text search-kbd-hint border-start-0 d-none d-md-inline-flex" ng-if="!vm.search">
+            <kbd>/</kbd>
+          </span>
+          <span class="input-group-text search-addon border-start-0 d-md-none" ng-if="!vm.search"></span>
           <button
             type="button"
             class="btn search-clear-btn border-start-0"
@@ -161,15 +170,38 @@
         </div>
       </div>
 
-      <div class="col-12 col-md-2 d-flex justify-content-md-end">
+      <div class="col-12 col-md-2 d-flex align-items-center justify-content-between justify-content-md-end gap-2">
         <button
           type="button"
-          class="btn btn-outline-secondary btn-sm w-100"
+          class="btn btn-outline-secondary btn-sm flex-grow-1 flex-md-grow-0"
           ng-if="vm.hasActiveFilters()"
           ng-click="vm.clearFilters()"
         >
           <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
         </button>
+
+        <div class="view-switcher d-none d-md-inline-flex" role="group" aria-label="Switch layout">
+          <button
+            type="button"
+            class="view-switch-btn"
+            ng-class="{ 'active': vm.viewMode === 'table' }"
+            ng-click="vm.setViewMode('table')"
+            title="Table view"
+            aria-label="Table view"
+          >
+            <i class="bi bi-list-ul"></i>
+          </button>
+          <button
+            type="button"
+            class="view-switch-btn"
+            ng-class="{ 'active': vm.viewMode === 'grid' }"
+            ng-click="vm.setViewMode('grid')"
+            title="Grid view"
+            aria-label="Grid view"
+          >
+            <i class="bi bi-grid-3x3-gap"></i>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -231,12 +263,19 @@
     ></button>
   </div>
 
-  <!-- Loading indicator -->
-  <div class="surface-card p-5 text-center" ng-if="vm.loading">
-    <div class="spinner-border text-primary mb-2" role="status">
-      <span class="visually-hidden">Loading books...</span>
+  <!-- Skeleton Shimmer Loading State -->
+  <div class="surface-card p-3" ng-if="vm.loading" aria-busy="true" aria-label="Loading books">
+    <div class="d-flex align-items-center justify-content-between py-2 border-bottom border-opacity-25" ng-repeat="n in [1, 2, 3, 4] track by n">
+      <div class="d-flex align-items-center gap-3 flex-grow-1">
+        <div class="skeleton-box" style="width: 38px; height: 38px; border-radius: 9px;"></div>
+        <div class="d-flex flex-column gap-2" style="width: 45%;">
+          <div class="skeleton-box" style="height: 14px; width: 75%;"></div>
+          <div class="skeleton-box" style="height: 11px; width: 45%;"></div>
+        </div>
+      </div>
+      <div class="skeleton-box d-none d-sm-block" style="height: 24px; width: 72px;"></div>
+      <div class="skeleton-box ms-3" style="height: 28px; width: 110px;"></div>
     </div>
-    <div class="text-body-secondary small">Loading library catalog...</div>
   </div>
 
   <!-- Empty state -->
@@ -267,7 +306,10 @@
   </div>
 
   <!-- Desktop Table View -->
-  <div class="surface-card overflow-hidden d-none d-md-block" ng-if="!vm.loading && vm.visibleBooks().length > 0">
+  <div
+    class="surface-card overflow-hidden d-none d-md-block"
+    ng-if="!vm.loading && vm.visibleBooks().length > 0 && vm.viewMode === 'table'"
+  >
     <div class="table-responsive">
       <table class="table books-table mb-0">
         <thead>
@@ -280,10 +322,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="book in vm.visibleBooks() track by book.id">
+          <tr ng-repeat="book in vm.paginatedBooks() track by book.id">
             <td>
-              <div class="book-title">{{ book.title }}</div>
-              <div class="book-author">{{ book.author }}</div>
+              <div class="d-flex align-items-center gap-3">
+                <span class="book-avatar" ng-class="vm.getCategoryTone(book.category)">
+                  {{ vm.getBookInitial(book) }}
+                </span>
+                <div>
+                  <div class="book-title">{{ book.title }}</div>
+                  <div class="book-author">{{ book.author }}</div>
+                </div>
+              </div>
             </td>
             <td>
               <span class="category-pill">{{ book.category }}</span>
@@ -350,13 +399,99 @@
     </div>
   </div>
 
+  <!-- Desktop Card Grid View -->
+  <div
+    class="row g-3 d-none d-md-flex"
+    ng-if="!vm.loading && vm.visibleBooks().length > 0 && vm.viewMode === 'grid'"
+  >
+    <div class="col-md-6 col-lg-4" ng-repeat="book in vm.paginatedBooks() track by book.id">
+      <div class="surface-card book-grid-card p-3 h-100 d-flex flex-column justify-content-between gap-3">
+        <div>
+          <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+            <div class="d-flex align-items-center gap-2 min-w-0">
+              <span class="book-avatar" ng-class="vm.getCategoryTone(book.category)">
+                {{ vm.getBookInitial(book) }}
+              </span>
+              <div class="min-w-0">
+                <div class="book-title text-truncate" title="{{ book.title }}">{{ book.title }}</div>
+                <div class="book-author text-truncate">{{ book.author }}</div>
+              </div>
+            </div>
+            <span class="year-cell flex-shrink-0">{{ book.published_year }}</span>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between gap-2 mt-3">
+            <span class="category-pill">{{ book.category }}</span>
+            <span
+              class="status-pill"
+              ng-class="book.is_borrowed ? 'status-borrowed' : 'status-available'"
+            >
+              <span class="status-dot"></span>
+              <span>{{ book.is_borrowed ? 'Borrowed' : 'Available' }}</span>
+            </span>
+          </div>
+
+          <div class="borrower-sub mt-2" ng-if="book.is_borrowed && book.borrower_name">
+            Borrowed by <strong>{{ book.borrower_name }}</strong>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-1 pt-2 border-top">
+          <button
+            type="button"
+            class="btn btn-outline-primary action-btn flex-grow-1 justify-content-center"
+            ng-if="!book.is_borrowed"
+            ng-disabled="vm.actionBookId === book.id"
+            ng-click="vm.openBorrowModal(book)"
+          >
+            <i class="bi bi-box-arrow-up-right"></i>
+            <span>Borrow</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-success action-btn flex-grow-1 justify-content-center"
+            ng-if="book.is_borrowed"
+            ng-disabled="vm.actionBookId === book.id"
+            ng-click="vm.returnBook(book)"
+          >
+            <i class="bi bi-arrow-return-left"></i>
+            <span>{{ vm.actionBookId === book.id ? 'Returning...' : 'Return' }}</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-secondary action-btn"
+            ng-disabled="vm.actionBookId === book.id"
+            ng-click="vm.editBook(book)"
+            title="Edit book"
+          >
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-danger action-btn"
+            ng-disabled="book.is_borrowed || vm.actionBookId === book.id"
+            title="{{ book.is_borrowed ? 'Return book before deleting' : 'Delete book' }}"
+            ng-click="vm.openDeleteModal(book)"
+          >
+            <i class="bi bi-trash3"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Mobile Card View -->
   <div class="d-flex flex-column gap-2 d-md-none" ng-if="!vm.loading && vm.visibleBooks().length > 0">
-    <div class="surface-card p-3" ng-repeat="book in vm.visibleBooks() track by book.id">
+    <div class="surface-card p-3" ng-repeat="book in vm.paginatedBooks() track by book.id">
       <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-        <div>
-          <div class="book-title">{{ book.title }}</div>
-          <div class="book-author">{{ book.author }}</div>
+        <div class="d-flex align-items-center gap-2 min-w-0">
+          <span class="book-avatar" ng-class="vm.getCategoryTone(book.category)">
+            {{ vm.getBookInitial(book) }}
+          </span>
+          <div class="min-w-0">
+            <div class="book-title text-truncate">{{ book.title }}</div>
+            <div class="book-author text-truncate">{{ book.author }}</div>
+          </div>
         </div>
         <span
           class="status-pill flex-shrink-0"
@@ -412,6 +547,36 @@
           <i class="bi bi-trash3 me-1"></i>Delete
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Pagination & Count Footer -->
+  <div
+    class="d-flex flex-wrap align-items-center justify-content-between gap-2 px-1"
+    ng-if="!vm.loading && vm.visibleBooks().length > 0"
+  >
+    <div class="text-body-secondary small">{{ vm.pageRangeText() }}</div>
+
+    <div class="d-flex align-items-center gap-2" ng-if="vm.totalPages() > 1">
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        ng-disabled="vm.currentPage <= 1"
+        ng-click="vm.setPage(vm.currentPage - 1)"
+      >
+        <i class="bi bi-chevron-left me-1"></i>Prev
+      </button>
+      <span class="small text-body-secondary">
+        Page {{ vm.currentPage }} of {{ vm.totalPages() }}
+      </span>
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        ng-disabled="vm.currentPage >= vm.totalPages()"
+        ng-click="vm.setPage(vm.currentPage + 1)"
+      >
+        Next<i class="bi bi-chevron-right ms-1"></i>
+      </button>
     </div>
   </div>
 </div>

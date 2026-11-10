@@ -9,12 +9,21 @@
       "$document",
       "$timeout",
       "$scope",
+      "$window",
       BookListController,
     ]);
 
-  function BookListController(BookService, $location, $document, $timeout, $scope) {
+  function BookListController(BookService, $location, $document, $timeout, $scope, $window) {
     var vm = this;
     var toastTimer = null;
+
+    var CATEGORY_TONES = {
+      technology: "tone-tech",
+      science: "tone-science",
+      fiction: "tone-fiction",
+      history: "tone-history",
+      biography: "tone-bio",
+    };
 
     vm.books = [];
     vm.loading = false;
@@ -27,6 +36,10 @@
     vm.sort = "newest";
     vm.statusFilter = "";
     vm.openMenu = null;
+
+    vm.viewMode = readSavedViewMode();
+    vm.currentPage = 1;
+    vm.pageSize = 8;
 
     vm.categories = ["Fiction", "Science", "History", "Technology", "Biography", "General"];
     vm.sortOptions = [
@@ -53,9 +66,17 @@
     vm.selectSort = selectSort;
     vm.getSortLabel = getSortLabel;
     vm.setStatusFilter = setStatusFilter;
+    vm.setViewMode = setViewMode;
     vm.visibleBooks = visibleBooks;
+    vm.paginatedBooks = paginatedBooks;
+    vm.totalPages = totalPages;
+    vm.setPage = setPage;
+    vm.pageRangeText = pageRangeText;
     vm.getBorrowedCount = getBorrowedCount;
     vm.getAvailableCount = getAvailableCount;
+    vm.getAvailabilityPercent = getAvailabilityPercent;
+    vm.getBookInitial = getBookInitial;
+    vm.getCategoryTone = getCategoryTone;
     vm.editBook = editBook;
     vm.openBorrowModal = openBorrowModal;
     vm.closeBorrowModal = closeBorrowModal;
@@ -71,6 +92,22 @@
       showSuccess(initialNotice);
     }
 
+    function readSavedViewMode() {
+      try {
+        var saved = $window.localStorage.getItem("library_view_mode");
+        return saved === "grid" ? "grid" : "table";
+      } catch (e) {
+        return "table";
+      }
+    }
+
+    function setViewMode(mode) {
+      vm.viewMode = mode === "grid" ? "grid" : "table";
+      try {
+        $window.localStorage.setItem("library_view_mode", vm.viewMode);
+      } catch (e) {}
+    }
+
     function onDocumentClick() {
       if (vm.openMenu) {
         $scope.$applyAsync(function () {
@@ -80,18 +117,29 @@
     }
 
     function onDocumentKeyDown(event) {
-      if (event.key !== "Escape") {
+      if (event.key === "Escape") {
+        $scope.$applyAsync(function () {
+          vm.openMenu = null;
+          if (vm.borrowModalBook && !vm.borrowing) {
+            closeBorrowModal();
+          }
+          if (vm.deleteModalBook && !vm.deleting) {
+            closeDeleteModal();
+          }
+        });
         return;
       }
-      $scope.$applyAsync(function () {
-        vm.openMenu = null;
-        if (vm.borrowModalBook && !vm.borrowing) {
-          closeBorrowModal();
+
+      if (event.key === "/" && !vm.borrowModalBook && !vm.deleteModalBook) {
+        var tag = event.target && event.target.tagName;
+        if (tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT") {
+          event.preventDefault();
+          var input = $document[0].getElementById("bookSearchInput");
+          if (input) {
+            input.focus();
+          }
         }
-        if (vm.deleteModalBook && !vm.deleting) {
-          closeDeleteModal();
-        }
-      });
+      }
     }
 
     $document.on("click", onDocumentClick);
@@ -144,6 +192,7 @@
     function loadBooks() {
       vm.loading = true;
       vm.error = "";
+      vm.currentPage = 1;
 
       BookService.list({
         search: vm.search.trim(),
@@ -198,6 +247,7 @@
 
     function setStatusFilter(status) {
       vm.statusFilter = vm.statusFilter === status ? "" : status;
+      vm.currentPage = 1;
     }
 
     function visibleBooks() {
@@ -208,6 +258,39 @@
       return vm.books.filter(function (book) {
         return Boolean(book.is_borrowed) === wantBorrowed;
       });
+    }
+
+    function totalPages() {
+      var count = visibleBooks().length;
+      return Math.max(1, Math.ceil(count / vm.pageSize));
+    }
+
+    function paginatedBooks() {
+      var list = visibleBooks();
+      var maxPage = Math.max(1, Math.ceil(list.length / vm.pageSize));
+      if (vm.currentPage > maxPage) {
+        vm.currentPage = maxPage;
+      }
+      var start = (vm.currentPage - 1) * vm.pageSize;
+      return list.slice(start, start + vm.pageSize);
+    }
+
+    function setPage(pageNum) {
+      var maxPage = totalPages();
+      if (pageNum < 1 || pageNum > maxPage) {
+        return;
+      }
+      vm.currentPage = pageNum;
+    }
+
+    function pageRangeText() {
+      var total = visibleBooks().length;
+      if (total === 0) {
+        return "0 books";
+      }
+      var start = (vm.currentPage - 1) * vm.pageSize + 1;
+      var end = Math.min(total, vm.currentPage * vm.pageSize);
+      return "Showing " + start + "–" + end + " of " + total + (total === 1 ? " book" : " books");
     }
 
     function hasActiveFilters() {
@@ -224,6 +307,7 @@
       vm.search = "";
       vm.category = "";
       vm.statusFilter = "";
+      vm.currentPage = 1;
       if (needsReload) {
         loadBooks();
       }
@@ -237,6 +321,23 @@
 
     function getAvailableCount() {
       return vm.books.length - getBorrowedCount();
+    }
+
+    function getAvailabilityPercent() {
+      if (!vm.books.length) {
+        return 0;
+      }
+      return Math.round((getAvailableCount() / vm.books.length) * 100);
+    }
+
+    function getBookInitial(book) {
+      var title = book && book.title ? book.title.trim() : "";
+      return title ? title.charAt(0).toUpperCase() : "B";
+    }
+
+    function getCategoryTone(category) {
+      var key = (category || "").trim().toLowerCase();
+      return CATEGORY_TONES[key] || "tone-general";
     }
 
     function editBook(book) {

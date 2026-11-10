@@ -522,3 +522,200 @@ body {
   font-size: 1.15rem;
   flex-shrink: 0;
 }
+
+/* Book monogram avatar tinted by category */
+.book-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+.tone-tech {
+  background-color: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+  border-color: rgba(37, 99, 235, 0.22);
+}
+
+.tone-science {
+  background-color: rgba(13, 148, 136, 0.12);
+  color: #0d9488;
+  border-color: rgba(13, 148, 136, 0.22);
+}
+
+.tone-fiction {
+  background-color: rgba(99, 102, 241, 0.12);
+  color: #6366f1;
+  border-color: rgba(99, 102, 241, 0.22);
+}
+
+.tone-history {
+  background-color: rgba(217, 119, 6, 0.12);
+  color: #d97706;
+  border-color: rgba(217, 119, 6, 0.22);
+}
+
+.tone-bio {
+  background-color: rgba(225, 29, 72, 0.12);
+  color: #e11d48;
+  border-color: rgba(225, 29, 72, 0.22);
+}
+
+.tone-general {
+  background-color: var(--pill-cat-bg);
+  color: var(--pill-cat-text);
+  border-color: var(--pill-cat-border);
+}
+
+[data-bs-theme="dark"] .tone-tech {
+  color: #60a5fa;
+}
+
+[data-bs-theme="dark"] .tone-science {
+  color: #2dd4bf;
+}
+
+[data-bs-theme="dark"] .tone-fiction {
+  color: #a5b4fc;
+}
+
+[data-bs-theme="dark"] .tone-history {
+  color: #fbbf24;
+}
+
+[data-bs-theme="dark"] .tone-bio {
+  color: #fb7185;
+}
+
+/* Segmented view switcher (Table / Grid) */
+.view-switcher {
+  display: inline-flex;
+  padding: 3px;
+  background-color: var(--bg-surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+}
+
+.view-switch-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0.28rem 0.58rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.view-switch-btn:hover {
+  color: var(--text-primary);
+}
+
+.view-switch-btn.active {
+  background-color: var(--bg-surface);
+  color: var(--accent);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+/* Search keyboard shortcut hint */
+.search-kbd-hint {
+  background-color: var(--bg-surface);
+  border-color: var(--border-subtle);
+  padding-inline: 0.55rem;
+}
+
+.search-kbd-hint kbd {
+  background-color: var(--bg-surface-subtle);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  padding: 0.08rem 0.38rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* Availability bar */
+.availability-bar-track {
+  height: 5px;
+  width: 100%;
+  background-color: var(--borrow-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.availability-bar-fill {
+  height: 100%;
+  background-color: #10b981;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Grid card polish */
+.book-grid-card {
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.book-grid-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+/* Skeleton loading shimmer */
+.skeleton-box {
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface-subtle) 25%,
+    var(--border-subtle) 50%,
+    var(--bg-surface-subtle) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Subtle modal & toast entrance */
+.modal-card-custom {
+  animation: modalPopIn 0.16s ease-out;
+}
+
+.toast-banner {
+  animation: toastSlideIn 0.18s ease-out;
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
