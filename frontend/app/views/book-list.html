@@ -273,7 +273,7 @@
       ng-repeat="n in [1, 2, 3, 4] track by n"
     >
       <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
-        <div class="skeleton-box flex-shrink-0" style="width: 38px; height: 38px; border-radius: 9px;"></div>
+        <div class="skeleton-box flex-shrink-0" style="width: 36px; height: 48px; border-radius: 3px 7px 7px 3px;"></div>
         <div class="d-flex flex-column gap-2 min-w-0 flex-grow-1" style="max-width: 45%;">
           <div class="skeleton-box" style="height: 14px; width: 75%;"></div>
           <div class="skeleton-box" style="height: 11px; width: 45%;"></div>
@@ -419,8 +419,8 @@
     >
       <div>
         <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
-          <div class="d-flex align-items-center gap-2 min-w-0">
-            <span class="book-avatar" ng-class="vm.getCategoryTone(book.category)">
+          <div class="d-flex align-items-center gap-3 min-w-0">
+            <span class="book-avatar book-cover-lg" ng-class="vm.getCategoryTone(book.category)">
               {{ vm.getBookInitial(book) }}
             </span>
             <div class="min-w-0">
